@@ -1,66 +1,39 @@
 const express = require('express')
 const app = express();
 app.use(express.json());
-
+const path = require('path')
 const port = 5000;
+const mongoose = require('mongoose')
 
-let data = [
-  {
-    "id": 23,
-    "name": "Shubham",
-    "email": "shubham@gmail.com",
-    "phone": "432423434"
-  },
-  {
-    "id": 31,
-    "name": "Utkarsh",
-    "email": "utkarsh@gmail.com",
-    "phone": "423423423"
-  }
-]
+app.get("/test", (req, res)=>{
 
-// Get all users
-app.get("/users", (req, res)=>{
-  res.json({users: data});
+  console.log("__dirname__", path.join(__dirname, "/html/index.html"))
+  // res.send("hello world")
+  res.sendFile(path.join(__dirname, "/html/index.html"))
 })
 
-// Get single user
-app.get("/users/:id", (req, res)=>{
-  const id = req.params.id
-  const user = data.find(user => user.id == id);
-  res.json({user: user});
-})
+mongoose.connect('mongodb://localhost:27017/myFirstMongoDb', {
+  useNewUrlParser: true
+});
 
-// Create user
-app.post("/users", (req, res)=>{
-  const user = req.body
-  data.push(user);
-  res.json({user: user, message: "User saved successfully"})
-})
+mongoose.connection.on("error", err => {
+  console.log("err", err);
+});
 
-// Update user
-app.put("/users/:id", (req, res)=>{
-  const id = req.params.id
-  const { name, email, phone } = req.body;
-  const user = data.find(user=> {
-    if(user.id == id){
-      user.name = name;
-      user.email = email;
-      user.phone = phone;
-      return user;
-    }
-  });
-  res.json({user: user, message: "User updated successfully"});
-})
+mongoose.connection.on("connected", (err, res) => {
+  console.log("mongoose is connected");
+});
 
-// Delete user
-app.delete("/users/:id", (req, res)=>{
-  const id = req.params.id;
-  const index = data.findIndex(user => user.id == id);
-  const user = data.splice(index, 1);
-  res.json({user: user, message: "User deleted successfully"})
-})
+const users = require('./api/users');
+const posts = require('./api/posts')
+
+app.use("/users", users);
+app.use("/posts", posts);
+
+
+
 
 app.listen(port, ()=>{
   console.log("App is running on port ", port)
 })
+
