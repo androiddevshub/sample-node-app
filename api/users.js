@@ -1,6 +1,8 @@
 const express = require('express');
 const User = require('../schema/User');
 const router = express.Router();
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 
 let data = [
@@ -30,9 +32,13 @@ router.get("/:id", (req, res)=>{
   res.json({user: user});
 })
 
+
 // Create user
-router.post("/", (req, res)=>{
+router.post("/signup", async (req, res)=>{
   const user = req.body;
+  const hashedPwd = await bcrypt.hash(user.password, saltRounds);
+  console.log("hashedPwd", hashedPwd);
+  user.password = hashedPwd;
   const userObj = new User(user);
   // data.push(user);
   userObj.save((err)=>{
@@ -40,9 +46,32 @@ router.post("/", (req, res)=>{
       return;
     }
     res.json({user: userObj, message: "User saved successfully"})
-  })
+  });
   
 })
+
+router.post("/login", async (req, res)=>{
+  const {email, password} = req.body;
+
+  const user = await User.findOne({email: email});
+  
+
+  console.log("userrrrrrr", user)
+  if(user){
+    const compare = await bcrypt.compare(password, user.password);
+    if(compare){
+      res.json({user: user, message: "Login successful"})
+    }else{
+      res.status(400).json({message: "Email and password do not match"})
+    }
+    
+  }else{
+    res.json({message: "User doesn't exist"}, 400)
+  }
+
+})
+
+
 
 // Update user
 router.put("/:id", (req, res)=>{

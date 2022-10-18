@@ -3,7 +3,7 @@ const app = express();
 app.use(express.json());
 const path = require('path')
 const port = 5000;
-const mongoose = require('mongoose')
+const database = require('./database')
 
 app.get("/test", (req, res)=>{
 
@@ -12,17 +12,7 @@ app.get("/test", (req, res)=>{
   res.sendFile(path.join(__dirname, "/html/index.html"))
 })
 
-mongoose.connect('mongodb://localhost:27017/myFirstMongoDb', {
-  useNewUrlParser: true
-});
 
-mongoose.connection.on("error", err => {
-  console.log("err", err);
-});
-
-mongoose.connection.on("connected", (err, res) => {
-  console.log("mongoose is connected");
-});
 
 const users = require('./api/users');
 const posts = require('./api/posts')
