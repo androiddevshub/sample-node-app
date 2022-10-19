@@ -3,35 +3,24 @@ const User = require('../schema/User');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
-
-
-let data = [
-  {
-    "id": 23,
-    "name": "Shubham",
-    "email": "shubham@gmail.com",
-    "phone": "432423434"
-  },
-  {
-    "id": 31,
-    "name": "Utkarsh",
-    "email": "utkarsh@gmail.com",
-    "phone": "423423423"
-  }
-]
+const { ObjectId } = require('mongodb');
 
 // Get all users
-router.get("/", (req, res)=>{
-  res.json({users: data});
+router.get("/", async (req, res)=>{
+  const users = await User.find({});
+  res.json({data: users})
 })
 
 // Get single user
-router.get("/:id", (req, res)=>{
+router.get("/:id", async (req, res)=>{
   const id = req.params.id
-  const user = data.find(user => user.id == id);
-  res.json({user: user});
+  const user =  await User.findById(id);
+  if(user){
+    res.json({user: user});
+  }else{
+    res.status(400).json({message: "User with this id doesn't exist"})
+  }
 })
-
 
 // Create user
 router.post("/signup", async (req, res)=>{
@@ -52,11 +41,7 @@ router.post("/signup", async (req, res)=>{
 
 router.post("/login", async (req, res)=>{
   const {email, password} = req.body;
-
   const user = await User.findOne({email: email});
-  
-
-  console.log("userrrrrrr", user)
   if(user){
     const compare = await bcrypt.compare(password, user.password);
     if(compare){
@@ -64,36 +49,32 @@ router.post("/login", async (req, res)=>{
     }else{
       res.status(400).json({message: "Email and password do not match"})
     }
-    
   }else{
     res.json({message: "User doesn't exist"}, 400)
   }
-
 })
 
-
-
 // Update user
-router.put("/:id", (req, res)=>{
-  const id = req.params.id
-  const { name, email, phone } = req.body;
-  const user = data.find(user=> {
-    if(user.id == id){
-      user.name = name;
-      user.email = email;
-      user.phone = phone;
-      return user;
-    }
-  });
-  res.json({user: user, message: "User updated successfully"});
+router.put("/:id", async (req, res)=>{
+  const id = req.params.id;
+  const user = await User.updateOne({_id: new ObjectId(id)}, req.body);
+  if(user){
+    res.json({user: user, message: "User updated successfully"});
+  }else{
+    res.status(400).json({message: "Something went wrong"})
+  }
+  
 })
 
 // Delete user
-router.delete("/:id", (req, res)=>{
+router.delete("/:id", async(req, res)=>{
   const id = req.params.id;
-  const index = data.findIndex(user => user.id == id);
-  const user = data.splice(index, 1);
-  res.json({user: user, message: "User deleted successfully"})
+  const user = await User.deleteOne({_id: new ObjectId(id)});
+  if(user){
+    res.json({user: user, message: "User deleted successfully"})
+  }else{
+    res.status(400).json({message: "Something went wrong"})
+  }
 })
 
 module.exports = router;
