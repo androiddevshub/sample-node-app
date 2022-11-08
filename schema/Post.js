@@ -9,6 +9,9 @@ const postSchema = mongoose.Schema({
   },
   userId: {
     type: String
+  },
+  images: {
+    type: Array
   }
 })
 

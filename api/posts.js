@@ -4,7 +4,7 @@ const Post = require('./../schema/Post')
 
 // Get all users
 router.get("/", (req, res)=>{
-
+  // posts = Post
   res.json({posts: data});
 })
 
@@ -26,6 +26,15 @@ router.post("/", (req, res)=>{
   })
 
 })
+
+router.delete("/del_img", (req, res)=> {
+  Post.findByIdAndUpdate(
+    req.body.id, { $pull: { "images": { id: req.body.imgId } } }, { safe: true, upsert: true },
+    function(err, node) {
+        if (err) { return handleError(res, err); }
+        return res.status(200).json({data: node, message: "Yup deleted"});
+    });
+});
 
 
 module.exports = router;

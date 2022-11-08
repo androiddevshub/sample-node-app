@@ -20,7 +20,7 @@ router.get("/:id", async (req, res)=>{
   }else{
     res.status(400).json({message: "User with this id doesn't exist"})
   }
-})
+});
 
 // Create user
 router.post("/signup", async (req, res)=>{
@@ -36,8 +36,7 @@ router.post("/signup", async (req, res)=>{
     }
     res.json({user: userObj, message: "User saved successfully"})
   });
-  
-})
+});
 
 router.post("/login", async (req, res)=>{
   const {email, password} = req.body;
@@ -52,7 +51,7 @@ router.post("/login", async (req, res)=>{
   }else{
     res.json({message: "User doesn't exist"}, 400)
   }
-})
+});
 
 // Update user
 router.put("/:id", async (req, res)=>{
@@ -63,8 +62,7 @@ router.put("/:id", async (req, res)=>{
   }else{
     res.status(400).json({message: "Something went wrong"})
   }
-  
-})
+});
 
 // Delete user
 router.delete("/:id", async(req, res)=>{
@@ -75,6 +73,6 @@ router.delete("/:id", async(req, res)=>{
   }else{
     res.status(400).json({message: "Something went wrong"})
   }
-})
+});
 
 module.exports = router;
